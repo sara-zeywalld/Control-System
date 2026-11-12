@@ -78,7 +78,7 @@ CREATE TABLE ctl.Field (
     ShowInResults BIT           NOT NULL CONSTRAINT DF_ctl_Field_Show DEFAULT 0,
     SortOrder     INT           NOT NULL CONSTRAINT DF_ctl_Field_Sort DEFAULT 0,
     CONSTRAINT PK_ctl_Field PRIMARY KEY (EntityKey, FieldKey),
-    CONSTRAINT CK_ctl_Field_Source CHECK ((ColumnName IS NULL) <> (SqlExpression IS NULL))
+    CONSTRAINT CK_ctl_Field_Source CHECK ((ColumnName IS NULL AND SqlExpression IS NOT NULL) OR (ColumnName IS NOT NULL AND SqlExpression IS NULL))
 );
 
 CREATE TABLE ctl.Relation (     -- קשר "רבים לאחד" מישות מקור לישות יעד
