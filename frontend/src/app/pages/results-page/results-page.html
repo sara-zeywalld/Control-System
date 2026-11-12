@@ -1,0 +1,48 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h1>{{ control()?.name ?? 'תוצאות בקרה' }}</h1>
+      @if (control(); as c) { <p class="subtitle">{{ c.summary }}</p> }
+    </div>
+    <div class="toolbar">
+      <a class="btn" routerLink="/">חזרה לרשימה</a>
+      <a class="btn" [routerLink]="['/controls', control()?.id ?? 0]">עריכת הבקרה</a>
+      <button type="button" class="btn primary" (click)="run()" [disabled]="running()">הפעל שוב</button>
+    </div>
+  </div>
+
+  @if (errors().length) { <app-alert [messages]="errors()" title="הרצת הבקרה נכשלה" /> }
+
+  @if (running()) {
+    <p class="muted">מריץ את הבקרה…</p>
+  } @else if (result(); as r) {
+    <div class="stats">
+      <div class="card stat" [class.bad]="r.totalCount > 0">
+        <strong>{{ r.totalCount }}</strong>
+        <span>רשומות חריגות</span>
+      </div>
+      <div class="card stat">
+        <strong>{{ r.durationMs }}ms</strong>
+        <span>משך הרצה</span>
+      </div>
+      <div class="card stat">
+        <strong>{{ r.ranAtUtc | date: 'HH:mm:ss' }}</strong>
+        <span>זמן הרצה</span>
+      </div>
+    </div>
+
+    @if (r.truncated) {
+      <app-alert kind="warning" [messages]="['מוצגות רק הרשומות הראשונות מתוך ' + r.totalCount + ' רשומות חריגות.']" />
+    }
+    @if (r.totalCount === 0) {
+      <div class="card ok">לא נמצאו רשומות חריגות — כל הנתונים תקינים לפי בקרה זו.</div>
+    } @else {
+      <app-results-table [result]="r" />
+    }
+
+    <button type="button" class="btn link" (click)="showSql.set(!showSql())">
+      {{ showSql() ? 'הסתר' : 'הצג' }} שאילתה שנוצרה (למתקדמים)
+    </button>
+    @if (showSql()) { <pre class="sql" dir="ltr">{{ r.generatedSql }}</pre> }
+  }
+</section>

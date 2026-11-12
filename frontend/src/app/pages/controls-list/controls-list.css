@@ -1,0 +1,7 @@
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control header { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.control h2 { margin: 0; flex: 1 1 100%; }
+.control p { margin: 0; }
+.summary { background: var(--surface-2); padding: 8px; border-radius: var(--radius); }
+.control footer { margin-top: auto; padding-top: 8px; }

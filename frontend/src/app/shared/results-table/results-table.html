@@ -1,0 +1,85 @@
+<div class="toolbar">
+  <input
+    type="search"
+    class="search"
+    placeholder="חיפוש חופשי בתוצאות (כולל סיבת הכישלון)…"
+    [value]="search()"
+    (input)="setSearch($any($event.target).value)"
+    aria-label="חיפוש בתוצאות" />
+  <button type="button" class="btn" (click)="showFilters.set(!showFilters())">
+    {{ showFilters() ? 'הסתר סינון לפי עמודה' : 'סינון לפי עמודה' }}
+  </button>
+  @if (search() || filtersActive()) {
+    <button type="button" class="btn link" (click)="clearFilters()">נקה סינון</button>
+  }
+  <span class="count">מוצגות {{ filtered().length }} מתוך {{ result().rows.length }} רשומות</span>
+</div>
+
+@if (result().truncated) {
+  <p class="note">
+    נמצאו {{ result().totalCount }} רשומות חריגות; מוצגות {{ result().rows.length }} הראשונות. צמצמו את תנאי הבקרה לקבלת תמונה מלאה.
+  </p>
+}
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        @for (col of result().columns; track col.key) {
+          <th>
+            <button type="button" class="sort" (click)="sortBy(col)">
+              {{ col.label }}
+              @if (sortKey() === col.key) { <span aria-hidden="true">{{ sortDesc() ? '▼' : '▲' }}</span> }
+            </button>
+          </th>
+        }
+        <th class="reason-col">סיבת הכישלון בבקרה</th>
+      </tr>
+      @if (showFilters()) {
+        <tr class="filters">
+          @for (col of result().columns; track col.key) {
+            <th>
+              <input
+                type="text"
+                [placeholder]="'סנן ' + col.label"
+                [value]="columnFilters()[col.key] ?? ''"
+                (input)="setFilter(col.key, $any($event.target).value)"
+                [attr.aria-label]="'סינון לפי ' + col.label" />
+            </th>
+          }
+          <th></th>
+        </tr>
+      }
+    </thead>
+    <tbody>
+      @for (row of pageRows(); track $index) {
+        <tr>
+          @for (col of result().columns; track col.key) {
+            <td [class.num]="col.type === 'number'" [attr.data-label]="col.label">{{ format(row.values[col.key], col) }}</td>
+          }
+          <td class="reason-col" data-label="סיבת הכישלון">
+            @for (r of row.reasons; track $index) { <span class="reason">{{ r }}</span> }
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td class="empty" [attr.colspan]="result().columns.length + 1">
+            {{ result().rows.length ? 'לא נמצאו רשומות התואמות לסינון' : 'לא נמצאו רשומות חריגות - כל הרשומות עומדות בבקרה 🎉' }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="pager">
+  <label>
+    שורות בעמוד
+    <select [value]="pageSize()" (change)="setPageSize($any($event.target).value)">
+      @for (s of pageSizes; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+  </label>
+  <button type="button" class="btn" [disabled]="currentPage() === 0" (click)="page.set(currentPage() - 1)">הקודם</button>
+  <span>עמוד {{ currentPage() + 1 }} מתוך {{ pageCount() }}</span>
+  <button type="button" class="btn" [disabled]="currentPage() >= pageCount() - 1" (click)="page.set(currentPage() + 1)">הבא</button>
+</div>

@@ -1,0 +1,44 @@
+<div class="row">
+  <select class="field" [value]="fieldId" (change)="setField($any($event.target).value)" aria-label="שדה">
+    @for (g of groups(); track g) {
+      <optgroup [label]="g">
+        @for (o of optionsOf(g); track o.id) { <option [value]="o.id" [selected]="o.id === fieldId">{{ o.label }}</option> }
+      </optgroup>
+    }
+  </select>
+
+  <select class="op" [value]="node().operator" (change)="setOperator($any($event.target).value)" aria-label="תנאי">
+    @for (op of operators; track op.key) { <option [value]="op.key" [selected]="op.key === node().operator">{{ op.label }}</option> }
+  </select>
+
+  @if (needsValue) {
+    @if (isCompareMode) {
+      <select class="field" [value]="compareId" (change)="setCompareField($any($event.target).value)" aria-label="שדה להשוואה">
+        @for (o of compareOptions; track o.id) { <option [value]="o.id" [selected]="o.id === compareId">{{ o.label }}</option> }
+      </select>
+    } @else if (isBetween) {
+      <input class="val" [type]="type === 'date' ? 'date' : 'number'" [value]="node().values?.[0] ?? ''" (input)="setBetween(0, $any($event.target).value)" aria-label="מ-" />
+      <span>עד</span>
+      <input class="val" [type]="type === 'date' ? 'date' : 'number'" [value]="node().values?.[1] ?? ''" (input)="setBetween(1, $any($event.target).value)" aria-label="עד" />
+    } @else if (isList) {
+      <input class="val wide" type="text" placeholder="ערכים מופרדים בפסיק" [value]="listText" (change)="setList($any($event.target).value)" aria-label="רשימת ערכים" />
+    } @else if (type === 'boolean') {
+      <select class="val" [value]="'' + node().value" (change)="setValue($any($event.target).value)" aria-label="ערך">
+        <option value="undefined" [selected]="node().value === undefined">בחרו…</option>
+        <option value="true" [selected]="node().value === true">כן</option>
+        <option value="false" [selected]="node().value === false">לא</option>
+      </select>
+    } @else {
+      <input class="val" [type]="type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'" placeholder="ערך" [value]="node().value ?? ''" (input)="setValue($any($event.target).value)" aria-label="ערך" />
+    }
+  }
+
+  @if (canCompareField) {
+    <label class="compare">
+      <input type="checkbox" [checked]="isCompareMode" (change)="toggleCompare($any($event.target).checked)" />
+      השוואה לשדה אחר
+    </label>
+  }
+
+  <button type="button" class="icon" (click)="remove.emit()" aria-label="מחק תנאי" title="מחק תנאי">✕</button>
+</div>

@@ -1,0 +1,54 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h1>הבקרות שלי</h1>
+      <p class="subtitle">בחרו בקרה והפעילו אותה כדי לראות את הרשומות החריגות.</p>
+    </div>
+    <div class="toolbar">
+      <a class="btn" routerLink="/ai">יצירה בשפה חופשית</a>
+      <a class="btn primary" routerLink="/controls/new">+ בקרה חדשה</a>
+    </div>
+  </div>
+
+  @if (errors().length) { <app-alert [messages]="errors()" /> }
+
+  <input type="search" placeholder="חיפוש בקרה לפי שם, תיאור או נושא…" [value]="search()" (input)="search.set($any($event.target).value)" aria-label="חיפוש בקרות" />
+
+  @if (loading()) {
+    <p class="muted">טוען…</p>
+  } @else if (!filtered().length) {
+    <div class="card muted">לא נמצאו בקרות.</div>
+  } @else {
+    <div class="grid">
+      @for (c of filtered(); track c.id) {
+        <article class="card control">
+          <header>
+            <h2>{{ c.name }}</h2>
+            <span class="badge">{{ c.rootEntityName }}</span>
+            @if (c.source === 'ai') { <span class="badge">נוצרה ב-AI</span> }
+          </header>
+          @if (c.description) { <p class="muted">{{ c.description }}</p> }
+          <p class="summary">{{ c.summary }}</p>
+          <p class="last muted">
+            @if (c.lastRun; as r) {
+              @if (r.succeeded) {
+                הרצה אחרונה {{ r.ranAtUtc | date: 'dd/MM/yyyy HH:mm' }}:
+                <span class="badge" [class.danger]="(r.violationCount ?? 0) > 0">{{ r.violationCount }} חריגות</span>
+              } @else {
+                הרצה אחרונה נכשלה
+              }
+            } @else {
+              טרם הורצה
+            }
+          </p>
+          <footer class="toolbar">
+            <button type="button" class="btn primary" (click)="run(c)">הפעל</button>
+            <a class="btn" [routerLink]="['/controls', c.id]">עריכה</a>
+            <button type="button" class="btn" (click)="duplicate(c)">שכפול</button>
+            <button type="button" class="btn danger" (click)="remove(c)">מחיקה</button>
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</section>

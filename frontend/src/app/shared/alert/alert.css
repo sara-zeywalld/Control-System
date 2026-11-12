@@ -1,0 +1,13 @@
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid;
+  margin-block: 8px;
+}
+.alert ul { margin: 0; padding-inline-start: 18px; }
+.error { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.warning { background: var(--warn-bg); border-color: var(--warn); color: #7a5300; }
+.info { background: var(--primary-bg); border-color: var(--primary); color: var(--primary-dark); }

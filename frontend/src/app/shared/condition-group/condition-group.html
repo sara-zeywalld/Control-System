@@ -1,0 +1,41 @@
+<div class="group" [class.nested]="depth() > 0">
+  <div class="head">
+    <span>הרשומה חריגה כאשר מתקיימים</span>
+    <div class="toggle" role="group" aria-label="אופן חיבור התנאים">
+      <button type="button" [class.active]="node().operator === 'and'" (click)="setOperator('and')">כל התנאים (וגם)</button>
+      <button type="button" [class.active]="node().operator === 'or'" (click)="setOperator('or')">לפחות תנאי אחד (או)</button>
+    </div>
+    @if (removable()) {
+      <button type="button" class="remove" (click)="remove.emit()">הסר קבוצה</button>
+    }
+  </div>
+
+  <div class="items">
+    @for (item of node().items; track item; let i = $index) {
+      @if (item.type === 'condition') {
+        <app-condition-row
+          [node]="asCondition(item)"
+          [rootEntity]="rootEntity()"
+          (remove)="removeAt(i)"
+          (changed)="changed.emit()" />
+      } @else {
+        <app-condition-group
+          [node]="asGroup(item)"
+          [rootEntity]="rootEntity()"
+          [depth]="depth() + 1"
+          [removable]="true"
+          (remove)="removeAt(i)"
+          (changed)="changed.emit()" />
+      }
+    } @empty {
+      <p class="empty">עדיין לא הוגדרו תנאים. לחצו על "הוסף תנאי".</p>
+    }
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn" (click)="addCondition()">+ הוסף תנאי</button>
+    @if (canNest()) {
+      <button type="button" class="btn" (click)="addGroup()">+ הוסף קבוצת תנאים</button>
+    }
+  </div>
+</div>

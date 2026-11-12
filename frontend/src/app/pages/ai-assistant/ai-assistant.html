@@ -1,0 +1,63 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h1>יצירת בקרה בשפה חופשית</h1>
+      <p class="subtitle">תארו את הבקרה במילים שלכם. המערכת תציע הגדרה, ורק לאחר אישורכם היא תישמר ותורץ. (בגרסה זו פועל מודל AI מדומה — Mock.)</p>
+    </div>
+  </div>
+
+  @if (errors().length) { <app-alert [messages]="errors()" /> }
+
+  <div class="card">
+    <textarea rows="3" [value]="prompt()" (input)="prompt.set($any($event.target).value)" placeholder="לדוגמה: מצא עובדים פעילים שגילם נמוך מ-18…" aria-label="תיאור הבקרה"></textarea>
+    <div class="chips">
+      @for (e of examples; track e) {
+        <button type="button" class="chip" (click)="prompt.set(e)">{{ e }}</button>
+      }
+    </div>
+    <div class="toolbar">
+      <button type="button" class="btn primary" (click)="suggest()" [disabled]="busy() || !prompt().trim()">הצע בקרה</button>
+      <button type="button" class="btn" (click)="loadProactive()" [disabled]="busy()">הצעות יזומות לפי מבנה הנתונים</button>
+    </div>
+  </div>
+
+  @if (suggestion(); as s) {
+    <div class="card proposal">
+      <h2>הבקרה המוצעת: {{ s.name }}</h2>
+      <p class="summary">{{ s.summary }}</p>
+      @if (s.explanation) { <p class="muted">{{ s.explanation }}</p> }
+      <p>רמת ביטחון: <span class="badge">{{ (s.confidence * 100).toFixed(0) }}%</span></p>
+      @if (s.warnings.length) { <app-alert kind="warning" [messages]="s.warnings" title="שימו לב" /> }
+      @if (s.validationErrors.length) { <app-alert [messages]="s.validationErrors" title="ההצעה אינה תקינה" /> }
+
+      <div class="toolbar">
+        <button type="button" class="btn primary" (click)="approve(s, true)" [disabled]="busy() || !s.isValid">אישור, שמירה והרצה</button>
+        <button type="button" class="btn" (click)="approve(s, false)" [disabled]="busy() || !s.isValid">אישור ושמירה</button>
+        <button type="button" class="btn" (click)="edit(s)">עריכה ידנית</button>
+        <button type="button" class="btn danger" (click)="cancel()">ביטול</button>
+      </div>
+
+      <button type="button" class="btn link" (click)="showJson.set(!showJson())">
+        {{ showJson() ? 'הסתר' : 'הצג' }} תשובת ה-AI כ-JSON
+      </button>
+      @if (showJson()) { <pre class="json" dir="ltr">{{ s | json }}</pre> }
+    </div>
+  }
+
+  @if (proactive().length) {
+    <div class="card">
+      <h2>בקרות מוצעות</h2>
+      <ul class="list">
+        @for (p of proactive(); track p.name) {
+          <li>
+            <div>
+              <strong>{{ p.name }}</strong>
+              <div class="muted">{{ p.summary }}</div>
+            </div>
+            <button type="button" class="btn" (click)="select(p)">סקירה</button>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</section>

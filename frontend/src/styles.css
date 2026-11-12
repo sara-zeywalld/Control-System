@@ -1,0 +1,81 @@
+:root {
+  --primary: #1f5fbf;
+  --primary-dark: #17477f;
+  --primary-bg: #e8f0fc;
+  --danger: #c62828;
+  --danger-bg: #fdecea;
+  --warn: #8a5a00;
+  --warn-bg: #fff4d6;
+  --surface: #ffffff;
+  --surface-2: #f4f6fa;
+  --border: #d5dbe6;
+  --muted: #5f6b7a;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Arial Hebrew", Arial, sans-serif;
+  background: var(--surface-2);
+  color: #1c2430;
+  line-height: 1.5;
+}
+
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 0 0 8px; }
+
+input, select, textarea {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible, .btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+textarea { width: 100%; resize: vertical; }
+
+.btn {
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 14px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--primary);
+  text-decoration: none;
+  display: inline-block;
+}
+.btn:hover { background: var(--primary-bg); }
+.btn.primary { background: var(--primary); color: #fff; }
+.btn.primary:hover { background: var(--primary-dark); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.danger:hover { background: var(--danger-bg); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.page { display: flex; flex-direction: column; gap: 16px; }
+.page-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.subtitle { color: var(--muted); margin: 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+}
+.badge.danger { background: var(--danger-bg); color: var(--danger); }
+.muted { color: var(--muted); }

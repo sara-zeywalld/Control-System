@@ -1,0 +1,15 @@
+.top { background: var(--primary-dark); color: #fff; }
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+}
+.brand { color: #fff; font-weight: 700; font-size: 1.2rem; text-decoration: none; }
+nav { display: flex; flex-wrap: wrap; gap: 4px; }
+nav a { color: #dce8fb; text-decoration: none; padding: 4px 12px; border-radius: var(--radius); }
+nav a:hover, nav a.active { background: rgba(255, 255, 255, 0.18); color: #fff; }
+main { max-width: 1200px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }

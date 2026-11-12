@@ -1,0 +1,24 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.field { min-width: 180px; flex: 1 1 180px; }
+.op { min-width: 150px; flex: 0 1 170px; }
+.val { min-width: 120px; flex: 0 1 160px; }
+.val.wide { flex: 1 1 240px; }
+.compare { display: flex; gap: 4px; align-items: center; color: var(--muted); font-size: 0.9rem; }
+.icon {
+  all: unset;
+  cursor: pointer;
+  margin-inline-start: auto;
+  padding: 4px 8px;
+  color: var(--danger);
+  border-radius: 6px;
+}
+.icon:hover, .icon:focus-visible { background: var(--danger-bg); }

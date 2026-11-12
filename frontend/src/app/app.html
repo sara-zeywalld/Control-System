@@ -1,0 +1,17 @@
+<header class="top">
+  <div class="inner">
+    <a class="brand" routerLink="/">מערכת בקרות נתונים</a>
+    <nav>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">הבקרות שלי</a>
+      <a routerLink="/controls/new" routerLinkActive="active">בקרה חדשה</a>
+      <a routerLink="/ai" routerLinkActive="active">יצירה בשפה חופשית</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  @if (store.error(); as err) {
+    <app-alert [messages]="[err]" />
+  }
+  <router-outlet />
+</main>

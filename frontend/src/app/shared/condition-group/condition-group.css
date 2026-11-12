@@ -1,0 +1,16 @@
+.group { display: flex; flex-direction: column; gap: 10px; }
+.group.nested {
+  padding: 10px;
+  background: var(--surface-2);
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius);
+}
+.head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.toggle { display: inline-flex; border: 1px solid var(--primary); border-radius: var(--radius); overflow: hidden; }
+.toggle button { all: unset; cursor: pointer; padding: 4px 12px; color: var(--primary); }
+.toggle button.active { background: var(--primary); color: #fff; }
+.toggle button:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: -2px; }
+.remove { all: unset; cursor: pointer; color: var(--danger); margin-inline-start: auto; }
+.items { display: flex; flex-direction: column; gap: 8px; }
+.empty { color: var(--muted); margin: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }

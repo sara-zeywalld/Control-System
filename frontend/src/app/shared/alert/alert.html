@@ -1,0 +1,12 @@
+@if (messages().length) {
+  <div class="alert" [class]="kind()" role="alert">
+    @if (title()) { <strong>{{ title() }}</strong> }
+    @if (messages().length === 1) {
+      <span>{{ messages()[0] }}</span>
+    } @else {
+      <ul>
+        @for (m of messages(); track $index) { <li>{{ m }}</li> }
+      </ul>
+    }
+  </div>
+}

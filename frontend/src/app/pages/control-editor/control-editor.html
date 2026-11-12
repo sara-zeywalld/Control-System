@@ -1,0 +1,51 @@
+<section class="page">
+  <div class="page-head">
+    <div>
+      <h1>{{ isEdit ? 'עריכת בקרה' : 'בקרה חדשה' }}</h1>
+      <p class="subtitle">הגדירו אילו רשומות נחשבות חריגות. אין צורך בידע טכני.</p>
+    </div>
+    <a class="btn" routerLink="/">ביטול</a>
+  </div>
+
+  @if (errors().length) { <app-alert [messages]="errors()" title="לא ניתן להמשיך" /> }
+
+  <div class="card form">
+    <label>
+      <span>שם הבקרה</span>
+      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" placeholder="לדוגמה: עובדים קטינים עם שכר גבוה" />
+    </label>
+    <label>
+      <span>תיאור (לא חובה)</span>
+      <textarea rows="2" [value]="description()" (input)="description.set($any($event.target).value)"></textarea>
+    </label>
+    <label>
+      <span>על אילו נתונים להריץ את הבקרה?</span>
+      <select [value]="definition()?.rootEntity ?? ''" (change)="chooseEntity($any($event.target).value)" [disabled]="isEdit">
+        <option value="" [selected]="!definition()">בחרו נושא…</option>
+        @for (e of store.entities(); track e.key) {
+          <option [value]="e.key" [selected]="e.key === definition()?.rootEntity">{{ e.pluralName }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (definition(); as def) {
+    <div class="card">
+      <h2>תנאים — איתור {{ entityName() }}</h2>
+      <app-condition-group [node]="def.root" [rootEntity]="def.rootEntity" (changed)="touched()" />
+    </div>
+
+    <div class="toolbar">
+      <button type="button" class="btn" (click)="runPreview()" [disabled]="busy()">בדיקה מקדימה</button>
+      <button type="button" class="btn" (click)="save(false)" [disabled]="busy()">שמירה</button>
+      <button type="button" class="btn primary" (click)="save(true)" [disabled]="busy()">שמירה והרצה</button>
+    </div>
+
+    @if (preview(); as p) {
+      <div class="card">
+        <h2>תוצאות בדיקה מקדימה: {{ p.totalCount }} רשומות חריגות</h2>
+        @if (p.totalCount > 0) { <app-results-table [result]="p" /> }
+      </div>
+    }
+  }
+</section>
