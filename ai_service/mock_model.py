@@ -14,7 +14,7 @@ HEB = "א-ת"
 PREFIX = "והשבלכמ"
 
 COMPARATORS = [
-    (r"נמוך מאו שווה|קטן או שווה|לכל היותר", "lte"),
+    (r"נמוך או שווה|קטן או שווה|לכל היותר", "lte"),
     (r"גבוה או שווה|גדול או שווה|לפחות", "gte"),
     (r"נמוכ|נמוך|קטנ|קטן|פחות|מתחת|צעיר|מוקדם", "lt"),
     (r"גבוה|גדול|יותר|מעל|מעבר|מאוחר", "gt"),
@@ -125,13 +125,17 @@ def _literal(segment: str, ftype: str):
     return None
 
 
-def _condition(m: Match, op: str, value=None, compare: Match | None = None) -> dict:
-    cond = {"type": "condition", "field": {"path": m.path, "field": m.field["key"]}, "operator": op}
+def _cond(path: list[str], field_key: str, op: str, value=None, compare: tuple[list[str], str] | None = None) -> dict:
+    cond = {"type": "condition", "field": {"path": path, "field": field_key}, "operator": op}
     if compare is not None:
-        cond["compareField"] = {"path": compare.path, "field": compare.field["key"]}
+        cond["compareField"] = {"path": compare[0], "field": compare[1]}
     elif value is not None:
         cond["value"] = value
     return cond
+
+
+def _condition(m: Match, op: str, value=None, compare: Match | None = None) -> dict:
+    return _cond(m.path, m.field["key"], op, value, (compare.path, compare.field["key"]) if compare else None)
 
 
 def suggest_control(request: dict) -> dict:
@@ -207,8 +211,15 @@ def _title(prompt: str) -> str:
     return t if len(t) <= 60 else t[:57] + "..."
 
 
+def _find_field(fields: list[dict], ftype: str, pattern: str) -> dict | None:
+    return next((f for f in fields if f["type"] == ftype and re.search(pattern, f["displayName"])), None)
+
+
 def suggest_proactive(request: dict) -> dict:
-    """מנתח את מבנה הקטלוג ומציע בקרות איכות נתונים כלליות (ללא תלות בשמות קבועים)."""
+    """מנתח את מבנה הקטלוג ומציע בקרות איכות נתונים כלליות.
+
+    הזיהוי מבוסס על סוגי שדות וקשרים, ועל היוריסטיקות שמות פשוטות (תחילה/סיום, פעיל, Max/Min).
+    מודל אמיתי יחליף את ההיוריסטיקות בהבנה סמנטית של הקטלוג."""
     catalog = request["catalog"]
     by_key = {e["key"]: e for e in catalog}
     out = []
@@ -220,8 +231,7 @@ def suggest_proactive(request: dict) -> dict:
         if required:
             out.append(_proposal(
                 e, f"חסרים נתוני חובה ב{e['pluralName']}",
-                {"type": "group", "operator": "or", "items": [
-                    {"type": "condition", "field": {"path": [], "field": f["key"]}, "operator": "isNull"} for f in required]},
+                {"type": "group", "operator": "or", "items": [_cond([], f["key"], "isNull") for f in required]},
                 f"שדות החובה: {', '.join(f['displayName'] for f in required)}", 0.8))
 
         starts = [f for f in fields if f["type"] == "date" and re.search("תחיל|התחל", f["displayName"])]
@@ -230,30 +240,29 @@ def suggest_proactive(request: dict) -> dict:
             for en in ends:
                 out.append(_proposal(
                     e, f"{en['displayName']} מוקדם מ{s['displayName']}",
-                    _all([{"type": "condition", "field": {"path": [], "field": en["key"]}, "operator": "lt",
-                           "compareField": {"path": [], "field": s["key"]}}]),
+                    _all([_cond([], en["key"], "lt", compare=([], s["key"]))]),
                     "זוג תאריכים התחלה/סיום - הסיום לא אמור להקדים את ההתחלה", 0.85))
 
-        active = next((f for f in fields if f["type"] == "boolean" and re.search("פעיל", f["displayName"])), None)
+        active = _find_field(fields, "boolean", "פעיל")
         for rel in e.get("relations", []):
             target = by_key.get(rel["targetEntity"])
-            t_active = next((f for f in target["fields"] if f["type"] == "boolean" and re.search("פעיל", f["displayName"])), None) if target else None
+            if not target:
+                continue
+
+            t_active = _find_field(target["fields"], "boolean", "פעיל")
             if active and t_active and target["key"] != e["key"]:
                 out.append(_proposal(
                     e, f"{e['pluralName']} פעילים המשויכים ל{rel['displayName']} שאינו פעיל",
-                    _all([
-                        {"type": "condition", "field": {"path": [], "field": active["key"]}, "operator": "eq", "value": True},
-                        {"type": "condition", "field": {"path": [rel["key"]], "field": t_active["key"]}, "operator": "eq", "value": False}]),
+                    _all([_cond([], active["key"], "eq", True), _cond([rel["key"]], t_active["key"], "eq", False)]),
                     "ישות פעילה שמקושרת לישות לא פעילה", 0.8))
 
-            for f in (target["fields"] if target else []):
+            for f in target["fields"]:
                 for prefix, op, word in (("Max", "gt", "תקרה"), ("Min", "lt", "רצפה")):
                     src = next((x for x in fields if x["type"] == "number" and f["key"] == prefix + x["key"]), None)
                     if src:
                         out.append(_proposal(
                             e, f"{src['displayName']} חורג מה{word} של {rel['displayName']}",
-                            _all([{"type": "condition", "field": {"path": [], "field": src["key"]}, "operator": op,
-                                   "compareField": {"path": [rel["key"]], "field": f["key"]}}]),
+                            _all([_cond([], src["key"], op, compare=([rel["key"]], f["key"]))]),
                             f"השוואת {src['displayName']} ל'{f['displayName']}'", 0.7))
     return {"suggestions": out}
 

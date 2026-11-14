@@ -9,7 +9,7 @@ Stack: SQL Server · .NET 10 Web API · Python (Mock AI) · Angular 22 (עברי
 |---|---|
 | `db/` | סקריפטים: סכמה, נתוני דוגמה, קטלוג עסקי ובקרות לדוגמה |
 | `backend/` | פתרון .NET (`BL` – לוגיקה עסקית, `DAL` – גישה לנתונים, `Api`, `Tests`) |
-| `ai_service/` | שירות Python (מודל AI מדומה מבוסס כללים) |
+| `ai_service/` | שירות Python (FastAPI) עם מודל AI מדומה מבוסס כללים |
 | `frontend/` | אפליקציית Angular |
 | `docs/` | ארכיטקטורה וחוזה ה-AI |
 
@@ -30,10 +30,11 @@ SQL Server (כולל LocalDB/Express), .NET SDK 10, Python 3.10+, Node 20+.
    cd backend\src\ControlSystem.Api
    dotnet run        # http://localhost:5230  (Swagger ב-/swagger)
    ```
-3. **שירות ה-AI (Mock)**:
+3. **שירות ה-AI (Mock, FastAPI)**:
    ```powershell
    cd ai_service
-   python app.py     # http://localhost:8000
+   pip install -r requirements.txt
+   python app.py     # http://localhost:8000  (תיעוד החוזה ב-/docs)
    ```
 4. **Frontend**:
    ```powershell

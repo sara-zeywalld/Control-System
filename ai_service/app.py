@@ -1,76 +1,73 @@
-"""שירות AI (Mock) - שרת HTTP/JSON קטן ללא תלויות חיצוניות.
+"""שירות AI (Mock) - FastAPI.
 
-הרצה:  python app.py [--port 8000]
+הרצה:  python app.py [--port 8000]      (תיעוד אינטראקטיבי של החוזה: http://localhost:8000/docs)
 נקודות קצה:
   POST /v1/control-suggestions    {prompt, catalog, ...}  ->  הצעת בקרה
   POST /v1/proactive-suggestions  {catalog, ...}          ->  {suggestions: [...]}
   GET  /health
+
+המודלים כאן הם חוזה ה-AI (ראו docs/ai-contract.md). מודל אמיתי יוכל להחליף את mock_model
+בלי לשנות את החוזה, ולכן גם לא את צד ה-.NET.
 """
 import argparse
-import json
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Any
+
+import uvicorn
+from fastapi import FastAPI
+from pydantic import BaseModel, ConfigDict, Field
 
 import mock_model
 
-ROUTES = {
-    "/v1/control-suggestions": mock_model.suggest_control,
-    "/v1/proactive-suggestions": mock_model.suggest_proactive,
-}
+MAX_PROMPT_LENGTH = 1000
 
 
-class Handler(BaseHTTPRequestHandler):
-    def _send(self, status: int, payload: dict) -> None:
-        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+class AiRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
 
-    def do_GET(self):
-        if self.path == "/health":
-            self._send(200, {"status": "ok", "model": "mock-rules-v1"})
-        else:
-            self._send(404, {"error": "not found"})
+    prompt: str = Field("", max_length=MAX_PROMPT_LENGTH)
+    language: str = "he"
+    schema_version: int = Field(1, alias="schemaVersion")
+    allowed_operators: dict[str, list[str]] = Field(default_factory=dict, alias="allowedOperators")
+    catalog: list[dict[str, Any]] = Field(min_length=1)
 
-    def _read_body(self) -> bytes:
-        if "chunked" in self.headers.get("Transfer-Encoding", "").lower():
-            chunks = []
-            while True:
-                size = int(self.rfile.readline().split(b";")[0].strip() or b"0", 16)
-                if size == 0:
-                    self.rfile.readline()
-                    break
-                chunks.append(self.rfile.read(size))
-                self.rfile.readline()
-            return b"".join(chunks)
-        return self.rfile.read(int(self.headers.get("Content-Length", 0)))
 
-    def do_POST(self):
-        handler = ROUTES.get(self.path)
-        if handler is None:
-            return self._send(404, {"error": "not found"})
-        try:
-            raw = self._read_body()
-            if not raw or len(raw) > 2_000_000:
-                return self._send(400, {"error": "invalid body size"})
-            request = json.loads(raw.decode("utf-8"))
-            if not isinstance(request.get("catalog"), list) or not request["catalog"]:
-                return self._send(400, {"error": "catalog is required"})
-            self._send(200, handler(request))
-        except (json.JSONDecodeError, KeyError) as exc:
-            self._send(400, {"error": f"bad request: {exc}"})
-        except Exception as exc:  # noqa: BLE001 - שרת הדגמה: לא מפילים את התהליך
-            self._send(500, {"error": f"internal error: {exc}"})
+class AiProposal(BaseModel):
+    name: str
+    description: str | None = None
+    explanation: str | None = None
+    confidence: float = Field(ge=0, le=1)
+    warnings: list[str] = []
+    definition: dict[str, Any]
 
-    def log_message(self, fmt, *args):
-        print("[ai-mock]", fmt % args)
+
+class ProactiveResponse(BaseModel):
+    suggestions: list[AiProposal]
+
+
+app = FastAPI(title="Controls AI mock", version="1")
+
+
+def _to_dict(request: AiRequest) -> dict:
+    return request.model_dump(by_alias=True)
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok", "model": "mock-rules-v1"}
+
+
+@app.post("/v1/control-suggestions", response_model=AiProposal)
+def control_suggestions(request: AiRequest) -> dict:
+    return mock_model.suggest_control(_to_dict(request))
+
+
+@app.post("/v1/proactive-suggestions", response_model=ProactiveResponse)
+def proactive_suggestions(request: AiRequest) -> dict:
+    return mock_model.suggest_proactive(_to_dict(request))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"AI mock service listening on http://127.0.0.1:{args.port}")
-    server.serve_forever()
+    uvicorn.run(app, host="127.0.0.1", port=args.port)

@@ -9,11 +9,30 @@
   "prompt": "מצא עובדים פעילים שגילם נמוך מ-18 ומשכורתם גבוהה מ-15,000",
   "language": "he",
   "schemaVersion": 1,
-  "allowedOperators": ["eq","neq","gt","gte","lt","lte","between","in","notIn","contains","notContains","startsWith","endsWith","isNull","isNotNull"],
-  "catalog": { "entities": [ { "key": "Employee", "displayName": "עובד", "synonyms": ["עובדים"], "fields": [], "relations": [] } ] }
+  "allowedOperators": {
+    "string":  ["eq","neq","contains","notContains","startsWith","endsWith","in","notIn","isNull","isNotNull"],
+    "number":  ["eq","neq","gt","gte","lt","lte","between","isNull","isNotNull","in","notIn"],
+    "date":    ["eq","neq","gt","gte","lt","lte","between","isNull","isNotNull"],
+    "boolean": ["eq","neq","isNull","isNotNull"]
+  },
+  "catalog": [
+    {
+      "key": "Employee", "displayName": "עובד", "pluralName": "עובדים", "description": "עובדי הארגון",
+      "synonyms": ["עובד", "עובדים"],
+      "fields": [
+        { "key": "Age", "displayName": "גיל", "description": "גיל בשנים שלמות", "type": "number", "synonyms": ["גילם"], "isRequired": false }
+      ],
+      "relations": [
+        { "key": "Department", "displayName": "מחלקה", "targetEntity": "Department", "description": "המחלקה של העובד", "synonyms": ["מחלקה"] }
+      ]
+    }
+  ]
 }
 ```
-הקטלוג כולל שמות עסקיים, תיאורים, סוגי שדות, קשרים ומילים נרדפות — בלי מבנה טכני של ה-DB.
+- `catalog` הוא **מערך** של ישויות (לא אובייקט עם `entities`).
+- `allowedOperators` הוא **מילון לפי סוג שדה** (`string`/`number`/`date`/`boolean`).
+- הקטלוג כולל שמות עסקיים, תיאורים, סוגי שדות, קשרים ומילים נרדפות — בלי מבנה טכני של ה-DB (בלי שמות טבלאות ועמודות).
+- `key` הוא המזהה שיש להחזיר בהגדרה; `path` בשדה מכיל מפתחות של קשרים (`relations[].key`).
 
 ## תשובה (`AiControlProposal`)
 ```json
@@ -29,3 +48,7 @@
 ```
 - בכל אובייקט ב-`definition` המאפיין `"type"` חייב להופיע ראשון.
 - התשובה מאומתת בשרת מול הקטלוג; הצעה לא תקינה מסומנת `isValid=false` ואינה ניתנת לאישור.
+
+## הצעות יזומות (`POST /v1/proactive-suggestions`)
+בקשה: `{ "catalog": [...], "allowedOperators": {...}, "schemaVersion": 1 }` (ללא `prompt`).
+תשובה: `{ "suggestions": [ AiControlProposal, ... ] }`.

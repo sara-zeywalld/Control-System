@@ -7,7 +7,7 @@ Angular ──► .NET API ──► ControlService ──► SqlServerQueryBuil
                  └─► AiControlService ──► IAiControlProvider ──HTTP──► Python (Mock AI)
 ```
 - **BL** (Business Logic) – ללא תלות בתשתית: הגדרות, קטלוג, ולידציה, בניית שאילתה, הרצה, חוזי AI, וממשקי הגישה לנתונים (`IControlRepository` וכו').
-- **DAL** (Data Access Layer) – מימוש הממשקים: Dapper/SqlClient, קטלוג וקריאת בקרות מה-DB, לקוח HTTP ל-AI, ומצב Demo בזיכרון.
+- **DAL** (Data Access Layer) – מימוש הממשקים: Dapper/SqlClient, קטלוג וקריאת בקרות מה-DB, לקוח HTTP ל-AI.
 - **Api** – Controllers דקים, Middleware אחיד לשגיאות (`{status,title,errors[]}`), CORS, Swagger. תלות בכיוון אחד: Api ← DAL ← BL (ה-BL אינו מכיר את ה-DAL).
 - **Frontend** – רכיבים: `condition-group` (רקורסיבי), `condition-row`, `results-table`, `alert`; מצב ב-Signals; CSS בקבצים נפרדים; RTL.
 

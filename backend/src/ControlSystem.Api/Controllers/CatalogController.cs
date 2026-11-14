@@ -33,5 +33,3 @@ public sealed class CatalogController(ICatalogProvider catalogs) : ControllerBas
         });
     }
 }
-
-public sealed record ControlInputDto(string? Name, string? Description, ControlDefinition? Definition, string? Source);

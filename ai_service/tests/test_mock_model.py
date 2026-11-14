@@ -58,6 +58,10 @@ class MockModelTests(unittest.TestCase):
         r = self.suggest("עובדים שגילם נמוך מ-18")
         self.assertEqual(r["definition"]["root"]["items"][0]["value"], 18)
 
+    def test_less_or_equal_phrase_maps_to_lte(self):
+        r = self.suggest("עובדים שגילם נמוך או שווה 18")
+        self.assertEqual(conditions(r)[0]["operator"], "lte")
+
     def test_type_is_first_key_for_polymorphic_json(self):
         r = self.suggest("עובדים שגילם נמוך מ 18")
         self.assertEqual(next(iter(r["definition"]["root"])), "type")
