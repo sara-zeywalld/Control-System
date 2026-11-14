@@ -1,6 +1,6 @@
 using System.Text.Json;
-using ControlSystem.Core.Catalog;
-using ControlSystem.Core.Definitions;
+using ControlSystem.BL.Catalog;
+using ControlSystem.BL.Definitions;
 
 namespace ControlSystem.Tests;
 

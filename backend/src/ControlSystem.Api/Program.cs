@@ -1,8 +1,8 @@
 using ControlSystem.Api.Middleware;
-using ControlSystem.Core.Definitions;
-using ControlSystem.Infrastructure;
-using ControlSystem.Infrastructure.Ai;
-using ControlSystem.Infrastructure.Persistence;
+using ControlSystem.BL.Definitions;
+using ControlSystem.DAL;
+using ControlSystem.DAL.Ai;
+using ControlSystem.DAL.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 

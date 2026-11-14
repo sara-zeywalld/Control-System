@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/ControlSystem.Api/ControlSystem.Api.csproj" />
-    <Project Path="src/ControlSystem.Core/ControlSystem.Core.csproj" />
-    <Project Path="src/ControlSystem.Infrastructure/ControlSystem.Infrastructure.csproj" />
+    <Project Path="src/ControlSystem.BL/ControlSystem.BL.csproj" />
+    <Project Path="src/ControlSystem.DAL/ControlSystem.DAL.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ControlSystem.Tests/ControlSystem.Tests.csproj" />

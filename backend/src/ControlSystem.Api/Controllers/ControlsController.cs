@@ -1,7 +1,7 @@
-using ControlSystem.Core;
-using ControlSystem.Core.Ai;
-using ControlSystem.Core.Controls;
-using ControlSystem.Core.Definitions;
+using ControlSystem.BL;
+using ControlSystem.BL.Ai;
+using ControlSystem.BL.Controls;
+using ControlSystem.BL.Definitions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlSystem.Api.Controllers;

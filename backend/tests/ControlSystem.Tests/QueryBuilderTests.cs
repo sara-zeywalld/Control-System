@@ -1,7 +1,7 @@
-using ControlSystem.Core;
-using ControlSystem.Core.Definitions;
-using ControlSystem.Core.Execution;
-using ControlSystem.Core.Querying;
+using ControlSystem.BL;
+using ControlSystem.BL.Definitions;
+using ControlSystem.BL.Execution;
+using ControlSystem.BL.Querying;
 using static ControlSystem.Tests.TestData;
 
 namespace ControlSystem.Tests;
@@ -9,7 +9,7 @@ namespace ControlSystem.Tests;
 public class QueryBuilderTests
 {
     private readonly SqlServerQueryBuilder _builder = new();
-    private readonly ControlSystem.Core.Catalog.DataCatalog _catalog = Catalog();
+    private readonly ControlSystem.BL.Catalog.DataCatalog _catalog = Catalog();
 
     [Fact]
     public void And_conditions_are_parameterized_and_values_never_inlined()

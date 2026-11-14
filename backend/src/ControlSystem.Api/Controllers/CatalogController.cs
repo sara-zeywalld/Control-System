@@ -1,7 +1,7 @@
-using ControlSystem.Core.Catalog;
-using ControlSystem.Core.Controls;
-using ControlSystem.Core.Definitions;
-using ControlSystem.Core.Querying;
+using ControlSystem.BL.Catalog;
+using ControlSystem.BL.Controls;
+using ControlSystem.BL.Definitions;
+using ControlSystem.BL.Querying;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlSystem.Api.Controllers;

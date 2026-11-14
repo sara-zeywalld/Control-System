@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ControlSystem.Core\ControlSystem.Core.csproj" />
-    <ProjectReference Include="..\..\src\ControlSystem.Infrastructure\ControlSystem.Infrastructure.csproj" />
+    <ProjectReference Include=    "..\..\src\ControlSystem.BL\ControlSystem.BL.csproj" />
+        <ProjectReference Include="..\..\src\ControlSystem.DAL\ControlSystem.DAL.csproj" />
   </ItemGroup>
 
 </Project>

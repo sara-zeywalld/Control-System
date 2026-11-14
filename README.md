@@ -8,7 +8,7 @@ Stack: SQL Server · .NET 10 Web API · Python (Mock AI) · Angular 22 (עברי
 | תיקייה | תוכן |
 |---|---|
 | `db/` | סקריפטים: סכמה, נתוני דוגמה, קטלוג עסקי ובקרות לדוגמה |
-| `backend/` | פתרון .NET (`Core`, `Infrastructure`, `Api`, `Tests`) |
+| `backend/` | פתרון .NET (`BL` – לוגיקה עסקית, `DAL` – גישה לנתונים, `Api`, `Tests`) |
 | `ai_service/` | שירות Python (מודל AI מדומה מבוסס כללים) |
 | `frontend/` | אפליקציית Angular |
 | `docs/` | ארכיטקטורה וחוזה ה-AI |
