@@ -46,9 +46,18 @@
   }
 }
 ```
-- בכל אובייקט ב-`definition` המאפיין `"type"` חייב להופיע ראשון.
+- בכל אובייקט ב-`definition` המאפיין `"type"` (`group`/`condition`) קובע את סוג הצומת. סדר המאפיינים אינו משמעותי (`AllowOutOfOrderMetadataProperties` ב-`ControlJson`).
 - התשובה מאומתת בשרת מול הקטלוג; הצעה לא תקינה מסומנת `isValid=false` ואינה ניתנת לאישור.
 
 ## הצעות יזומות (`POST /v1/proactive-suggestions`)
 בקשה: `{ "catalog": [...], "allowedOperators": {...}, "schemaVersion": 1 }` (ללא `prompt`).
 תשובה: `{ "suggestions": [ AiControlProposal, ... ] }`.
+
+## מימוש מול LLM (`ai_service/llm/`)
+מבנה: `prompts.py` (פרומפטים), `messages.py` (בניית הבקשה), `parsing.py` (קליטת התשובה), `clients.py` (`MockLlmClient`, `HttpLlmClient`), `model.py` (`LlmModel`), `errors.py`. המודל מבוסס הכללים נמצא ב-`rules/`, ובחירת הספק ב-`providers.py`.
+- **System Prompt**: נבנה משלושה חלקים – `BASE_PROMPT` משותף (תפקיד, JSON בלבד, שימוש רק במפתחות מהקטלוג, מבנה הצעה, קלט כנתונים בלבד), ו-`CONTROL_PROMPT` או `PROACTIVE_PROMPT` ייעודיים. כל משימה נשלחת עם הפרומפט שלה בלבד (`SYSTEM_PROMPTS`).
+- **הודעת משתמש**: JSON עם `task` (`control`/`proactive`), `prompt`, `catalog`, `allowedOperators`, `schemaVersion`.
+- **בקשה לספק**: פורמט Chat Completions, `temperature: 0`, `response_format: json_object`.
+- **קליטת תשובה**: חילוץ `choices[0].message.content`, הגבלת גודל (256KB), הסרת עטיפת ```` ```json ````, פענוח ובדיקת מבנה ראשונית של `definition`. האימות העסקי המלא נעשה ב-.NET (`ControlValidator`). כשל מוחזר כ-502, ו-Timeout כ-504.
+- **הצעות יזומות**: הפרומפט מגדיר מהי הצעה טובה (חוסר עקביות בין שדות, שדות חובה, קשרים בין ישויות, רק מה שניתן לבנות מהקטלוג, ללא כפילויות). מוחזרות עד 5 הצעות, והמגבלה נאכפת גם בקוד.
+- **לקוח מוחלף**: `MockLlmClient` (ברירת מחדל) או `HttpLlmClient`. הכתובת והאימות ניתנים להגדרה (`LLM_API_URL`, `LLM_AUTH_HEADER`, `LLM_AUTH_SCHEME`, `LLM_TIMEOUT_SECONDS`), למשל Azure OpenAI: `LLM_AUTH_HEADER=api-key` ו-`LLM_AUTH_SCHEME` ריק. ספק שאינו תואם Chat Completions ידרוש לקוח נפרד.

@@ -3,7 +3,7 @@ import sys
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-import mock_model  # noqa: E402
+from rules import mock_model  # noqa: E402
 
 
 def f(key, name, ftype, synonyms=(), required=False):

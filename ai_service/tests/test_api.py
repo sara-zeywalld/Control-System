@@ -1,12 +1,15 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import app as app_module  # noqa: E402
 from app import app  # noqa: E402
+from llm import LlmError, LlmTimeoutError  # noqa: E402
 
 CATALOG = [{
     "key": "Employee", "displayName": "עובד", "pluralName": "עובדים", "synonyms": ["עובדים"],
@@ -41,6 +44,20 @@ class ApiTests(unittest.TestCase):
     def test_missing_or_empty_catalog_is_rejected(self):
         self.assertEqual(self.client.post("/v1/control-suggestions", json={"prompt": "x"}).status_code, 422)
         self.assertEqual(self.client.post("/v1/control-suggestions", json={"prompt": "x", "catalog": []}).status_code, 422)
+
+    def test_invalid_llm_response_returns_bad_gateway(self):
+        def broken(_):
+            raise LlmError("bad json")
+        with patch.object(app_module.provider, "suggest_control", broken):
+            r = self.client.post("/v1/control-suggestions", json={"prompt": "x", "catalog": CATALOG})
+        self.assertEqual(r.status_code, 502)
+
+    def test_llm_timeout_returns_gateway_timeout(self):
+        def slow(_):
+            raise LlmTimeoutError("timeout")
+        with patch.object(app_module.provider, "suggest_control", slow):
+            r = self.client.post("/v1/control-suggestions", json={"prompt": "x", "catalog": CATALOG})
+        self.assertEqual(r.status_code, 504)
 
 
 if __name__ == "__main__":

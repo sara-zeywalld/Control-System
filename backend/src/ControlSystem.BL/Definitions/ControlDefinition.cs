@@ -48,6 +48,7 @@ public static class ControlJson
     {
         o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         o.PropertyNameCaseInsensitive = true;
+        o.AllowOutOfOrderMetadataProperties = true;
         o.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         o.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
     }

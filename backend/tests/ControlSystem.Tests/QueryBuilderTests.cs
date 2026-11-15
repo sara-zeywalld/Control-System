@@ -205,6 +205,20 @@ public class SafetyAndJsonTests
     }
 
     [Fact]
+    public void Definition_json_does_not_depend_on_property_order()
+    {
+        const string json = """
+            {"root":{"operator":"and","items":[
+              {"field":{"path":[],"field":"Age"},"operator":"lt","value":18,"type":"condition"}],"type":"group"},
+             "rootEntity":"Employee"}
+            """;
+
+        var def = ControlJson.Parse(json);
+
+        Assert.IsType<ConditionNode>(def.Root.Items[0]);
+    }
+
+    [Fact]
     public void Describer_produces_business_sentence()
     {
         var def = Def(LogicalOperator.And,

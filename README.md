@@ -9,7 +9,7 @@ Stack: SQL Server · .NET 10 Web API · Python (Mock AI) · Angular 22 (עברי
 |---|---|
 | `db/` | סקריפטים: סכמה, נתוני דוגמה, קטלוג עסקי ובקרות לדוגמה |
 | `backend/` | פתרון .NET (`BL` – לוגיקה עסקית, `DAL` – גישה לנתונים, `Api`, `Tests`) |
-| `ai_service/` | שירות Python (FastAPI) עם מודל AI מדומה מבוסס כללים |
+| `ai_service/` | שירות Python (FastAPI): צינור LLM (System Prompt, פענוח ואימות תשובה) מול לקוח LLM מדומה |
 | `frontend/` | אפליקציית Angular |
 | `docs/` | ארכיטקטורה וחוזה ה-AI |
 
@@ -36,6 +36,8 @@ SQL Server (כולל LocalDB/Express), .NET SDK 10, Python 3.10+, Node 20+.
    pip install -r requirements.txt
    python app.py     # http://localhost:8000  (תיעוד החוזה ב-/docs)
    ```
+   הספק נבחר לפי `AI_PROVIDER`: `llm` (ברירת מחדל – צינור LLM מלא מול לקוח מדומה), `rules` (המודל מבוסס הכללים ישירות),
+   `http` (ספק LLM אמיתי תואם Chat Completions; דורש `LLM_API_URL`, `LLM_API_KEY`, `LLM_MODEL`).
 4. **Frontend**:
    ```powershell
    cd frontend
@@ -63,6 +65,8 @@ cd frontend; npx ng test --watch=false
 ## הדגמת שלב ב' (Mock)
 בלשונית "יצירה בשפה חופשית" הזינו, למשל: *מצא עובדים פעילים שגילם נמוך מ-18 ומשכורתם גבוהה מ-15,000 ש"ח*.
 המערכת שולחת ל-Python את תיאור הקטלוג, מקבלת הצעת בקרה (JSON), מאמתת אותה, ומציגה לאישור.
+בשירות ה-Python, החבילה `ai_service/llm/` בונה System Prompt והודעות עם הקטלוג, "שולחת" אותן ללקוח LLM מדומה (`MockLlmClient`)
+שמחזיר תשובה גולמית במבנה של ספק, ומפענח ומאמת אותה. מעבר ל-LLM אמיתי = החלפת הלקוח בלבד.
 רק אחרי אישור היא נשמרת ומורצת. כפתור "הצעות יזומות" מדגים את המשימה המתקדמת.
 
 ## בדיקה מול SQL Server

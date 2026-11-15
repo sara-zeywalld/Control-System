@@ -28,7 +28,7 @@ Angular ──► .NET API ──► ControlService ──► SqlServerQueryBuil
 
 ## שלב ב' – AI
 - חוזה: `AiControlRequest` (טקסט חופשי, תיאור קטלוג עם מילים נרדפות, אופרטורים מותרים, גרסה) ← `AiControlProposal` (שם, הגדרה, הסבר, ביטחון, אזהרות). ראו [ai-contract.md](ai-contract.md).
-- `IAiControlProvider` היא נקודת ההחלפה; היום `HttpAiControlProvider` מול Python Mock. החלפה למודל אמיתי = מימוש חדש של הממשק/שירות, ללא שינוי בלוגיקת הבקרות.
+- `IAiControlProvider` היא נקודת ההחלפה; היום `HttpAiControlProvider` מול שירות Python. בשירות עצמו, `LlmModel` בונה System Prompt והקשר מהקטלוג ומפענח את תשובת ה-LLM, וה-Mock הוא הלקוח בלבד (`MockLlmClient`). החלפה למודל אמיתי = החלפת הלקוח (`AI_PROVIDER=http`), ללא שינוי בלוגיקת הבקרות.
 - פלט ה-AI אינו מהימן: `AiControlService` מאמת אותו מול הקטלוג ומחזיר `isValid`. דבר לא נשמר או מורץ ללא אישור המשתמש.
 - משימה מתקדמת: `POST /api/ai/suggest-proactive` – הצעות כלליות מתוך מבנה הקטלוג (שדות חובה חסרים, סיום<התחלה, ישות פעילה מול קשורה לא פעילה, ערך מעל Max של ישות קשורה).
 

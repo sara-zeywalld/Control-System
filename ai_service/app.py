@@ -6,17 +6,21 @@
   POST /v1/proactive-suggestions  {catalog, ...}          ->  {suggestions: [...]}
   GET  /health
 
-המודלים כאן הם חוזה ה-AI (ראו docs/ai-contract.md). מודל אמיתי יוכל להחליף את mock_model
-בלי לשנות את החוזה, ולכן גם לא את צד ה-.NET.
+המודלים כאן הם חוזה ה-AI (ראו docs/ai-contract.md). הספק נבחר לפי משתנה הסביבה AI_PROVIDER:
+  llm   (ברירת מחדל) - צינור LLM מלא (System Prompt, פענוח ואימות תשובה) מול לקוח LLM מדומה
+  rules - המודל מבוסס הכללים ישירות
+  http  - ספק LLM אמיתי (דורש LLM_API_URL, LLM_API_KEY, LLM_MODEL)
+החלפת ספק אינה משנה את החוזה, ולכן גם לא את צד ה-.NET.
 """
 import argparse
 from typing import Any
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
-import mock_model
+from llm import LlmError, LlmTimeoutError
+from providers import PROVIDER_NAME, create_provider
 
 MAX_PROMPT_LENGTH = 1000
 
@@ -44,26 +48,37 @@ class ProactiveResponse(BaseModel):
     suggestions: list[AiProposal]
 
 
-app = FastAPI(title="Controls AI mock", version="1")
+provider = create_provider()
+
+app = FastAPI(title="Controls AI service", version="1")
 
 
 def _to_dict(request: AiRequest) -> dict:
     return request.model_dump(by_alias=True)
 
 
+def _call(method, request: AiRequest) -> dict:
+    try:
+        return method(_to_dict(request))
+    except LlmTimeoutError as ex:
+        raise HTTPException(status_code=504, detail=str(ex)) from ex
+    except LlmError as ex:
+        raise HTTPException(status_code=502, detail=str(ex)) from ex
+
+
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "model": "mock-rules-v1"}
+    return {"status": "ok", "provider": PROVIDER_NAME}
 
 
 @app.post("/v1/control-suggestions", response_model=AiProposal)
 def control_suggestions(request: AiRequest) -> dict:
-    return mock_model.suggest_control(_to_dict(request))
+    return _call(provider.suggest_control, request)
 
 
 @app.post("/v1/proactive-suggestions", response_model=ProactiveResponse)
 def proactive_suggestions(request: AiRequest) -> dict:
-    return mock_model.suggest_proactive(_to_dict(request))
+    return _call(provider.suggest_proactive, request)
 
 
 if __name__ == "__main__":
