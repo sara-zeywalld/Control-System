@@ -13,14 +13,15 @@
 החלפת ספק אינה משנה את החוזה, ולכן גם לא את צד ה-.NET.
 """
 import argparse
+import os
 from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
-from llm import LlmError, LlmTimeoutError
-from providers import PROVIDER_NAME, create_provider
+from llm import HttpLlmClient, LlmError, LlmModel, LlmTimeoutError
+from rules import mock_model
 
 MAX_PROMPT_LENGTH = 1000
 
@@ -48,7 +49,18 @@ class ProactiveResponse(BaseModel):
     suggestions: list[AiProposal]
 
 
-provider = create_provider()
+def create_provider(name: str):
+    if name == "rules":
+        return mock_model
+    if name == "llm":
+        return LlmModel()
+    if name == "http":
+        return LlmModel(HttpLlmClient.from_env())
+    raise ValueError(f"AI_PROVIDER לא מוכר: {name}")
+
+
+PROVIDER_NAME = os.getenv("AI_PROVIDER", "llm").lower()
+provider = create_provider(PROVIDER_NAME)
 
 app = FastAPI(title="Controls AI service", version="1")
 

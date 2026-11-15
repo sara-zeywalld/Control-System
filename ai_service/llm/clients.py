@@ -5,8 +5,15 @@ from typing import Protocol
 
 from rules import mock_model
 
-from .errors import LlmError, LlmTimeoutError
-from .parsing import MAX_RESPONSE_BYTES
+MAX_RESPONSE_BYTES = 256 * 1024
+
+
+class LlmError(RuntimeError):
+    """שגיאה בתקשורת עם ה-LLM או בתשובה שהחזיר."""
+
+
+class LlmTimeoutError(LlmError):
+    """הספק לא הגיב בזמן."""
 
 
 class LlmClient(Protocol):

@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from llm import LlmError, LlmModel, MockLlmClient  # noqa: E402
-from llm.parsing import MAX_RESPONSE_BYTES  # noqa: E402
+from llm.clients import MAX_RESPONSE_BYTES  # noqa: E402
 from llm.prompts import SYSTEM_PROMPTS  # noqa: E402
 
 CATALOG = [{

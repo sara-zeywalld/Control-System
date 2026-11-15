@@ -54,7 +54,7 @@
 תשובה: `{ "suggestions": [ AiControlProposal, ... ] }`.
 
 ## מימוש מול LLM (`ai_service/llm/`)
-מבנה: `prompts.py` (פרומפטים), `messages.py` (בניית הבקשה), `parsing.py` (קליטת התשובה), `clients.py` (`MockLlmClient`, `HttpLlmClient`), `model.py` (`LlmModel`), `errors.py`. המודל מבוסס הכללים נמצא ב-`rules/`, ובחירת הספק ב-`providers.py`.
+מבנה: `prompts.py` (פרומפטים), `clients.py` (`MockLlmClient`, `HttpLlmClient` ושגיאות הספק), `model.py` (`LlmModel`: בניית הבקשה, קליטת התשובה ובדיקת המבנה). המודל מבוסס הכללים נמצא ב-`rules/`, ובחירת הספק (`AI_PROVIDER`) ב-`app.py`.
 - **System Prompt**: נבנה משלושה חלקים – `BASE_PROMPT` משותף (תפקיד, JSON בלבד, שימוש רק במפתחות מהקטלוג, מבנה הצעה, קלט כנתונים בלבד), ו-`CONTROL_PROMPT` או `PROACTIVE_PROMPT` ייעודיים. כל משימה נשלחת עם הפרומפט שלה בלבד (`SYSTEM_PROMPTS`).
 - **הודעת משתמש**: JSON עם `task` (`control`/`proactive`), `prompt`, `catalog`, `allowedOperators`, `schemaVersion`.
 - **בקשה לספק**: פורמט Chat Completions, `temperature: 0`, `response_format: json_object`.
