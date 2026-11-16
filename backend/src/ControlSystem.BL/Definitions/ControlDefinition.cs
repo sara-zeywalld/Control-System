@@ -14,10 +14,7 @@ public enum ComparisonOperator
 }
 
 /// <summary>הפניה לשדה עסקי: נתיב קשרים מהישות הראשית (ריק = הישות הראשית) ומפתח השדה.</summary>
-public sealed record FieldRef(List<string> Path, string Field)
-{
-    public string PathKey => string.Join('/', Path);
-}
+public sealed record FieldRef(List<string> Path, string Field);
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(GroupNode), "group")]

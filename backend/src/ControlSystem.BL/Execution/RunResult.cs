@@ -56,10 +56,10 @@ public static class ResultMapper
         if (OperatorRules.NeedsNoValue(op))
             return $"{leaf.Left.Label} {ConditionText.Operator(op, type)}";
 
-        var actual = ConditionText.Format(Normalize(row[leaf.ValueAlias]), type);
-        var rhs = ConditionText.Right(leaf.Condition, leaf.Left, leaf.Right, leaf.Expected);
+        var actual = ConditionText.Format(Normalize(row[leaf.ValueAlias]));
+        var rhs = ConditionText.Right(leaf.Condition, leaf.Right, leaf.Expected);
         if (leaf.Right is not null)
-            rhs += $" ({ConditionText.Format(Normalize(row[leaf.CompareAlias]), leaf.Right.Field.Type)})";
+            rhs += $" ({ConditionText.Format(Normalize(row[leaf.CompareAlias]))})";
         return $"{leaf.Left.Label} ({actual}) {ConditionText.Operator(op, type)}{rhs}";
     }
 

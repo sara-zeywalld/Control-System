@@ -93,7 +93,7 @@ def _collect_matches(text: str, entity: dict, by_key: dict) -> list[Match]:
             continue
         for f in target["fields"]:
             for s, e in _find(text, _terms(f["displayName"], f.get("synonyms"))):
-                if any(0 <= s - he <= 40 for hs, he in rel_hits[rel["key"]]):
+                if any(0 <= s - he <= 40 for _, he in rel_hits[rel["key"]]):
                     found.append(Match(s, e, [rel["key"]], f))
 
     # אם אותו מקום בטקסט תואם גם שדה של קשר וגם שדה של הישות הראשית - מעדיפים את שדה הקשר

@@ -33,7 +33,7 @@ public static class ConditionText
         };
     }
 
-    public static string Format(object? value, FieldType type)
+    public static string Format(object? value)
     {
         if (value is null or DBNull) return "ריק";
         return value switch
@@ -47,20 +47,19 @@ public static class ConditionText
     }
 
     /// <summary>הצד הימני של התנאי: ערך/ים או שם שדה אחר.</summary>
-    public static string Right(ConditionNode c, ResolvedField left, ResolvedField? right, IReadOnlyList<object> expected)
+    public static string Right(ConditionNode c, ResolvedField? right, IReadOnlyList<object> expected)
     {
         if (OperatorRules.NeedsNoValue(c.Operator)) return "";
         if (right is not null) return $"\"{right.Label}\"";
-        var t = left.Field.Type;
         return c.Operator switch
         {
-            ComparisonOperator.Between when expected.Count == 2 => $"{Format(expected[0], t)} עד {Format(expected[1], t)}",
-            ComparisonOperator.In or ComparisonOperator.NotIn => string.Join(", ", expected.Select(e => Format(e, t))),
-            _ => expected.Count > 0 ? Format(expected[0], t) : ""
+            ComparisonOperator.Between when expected.Count == 2 => $"{Format(expected[0])} עד {Format(expected[1])}",
+            ComparisonOperator.In or ComparisonOperator.NotIn => string.Join(", ", expected.Select(Format)),
+            _ => expected.Count > 0 ? Format(expected[0]) : ""
         };
     }
 
     /// <summary>תנאי כמשפט, למשל: גיל קטן מ-18.</summary>
     public static string Describe(LeafInfo leaf) =>
-        $"{leaf.Left.Label} {Operator(leaf.Condition.Operator, leaf.Left.Field.Type)}{Right(leaf.Condition, leaf.Left, leaf.Right, leaf.Expected)}".Trim();
+        $"{leaf.Left.Label} {Operator(leaf.Condition.Operator, leaf.Left.Field.Type)}{Right(leaf.Condition, leaf.Right, leaf.Expected)}".Trim();
 }
